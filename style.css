@@ -1,0 +1,30 @@
+body, html {
+	height: 100%;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+}
+
+body {
+	width: 900px;
+	margin: 0 auto;
+}
+
+#container {
+	width: 800px;
+	height: 100%;
+	margin: 0 auto;
+	display: block;
+	position: relative;
+}
+
+#stats {
+	position: absolute;
+	top: 50px;
+}
+
+.gameScreen {
+	position: absolute;
+	top: 50px;
+	outline: solid 1px black;
+}
