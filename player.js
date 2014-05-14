@@ -87,7 +87,7 @@ createPlayer = function(g){
         	var xDeform = clip(this.vx, -maxXDeform, maxXDeform);
         	var yDeform = clip(this.vy, -maxYDeform, maxYDeform);
 
-            ctx.strokeStyle = "#000000";
+            ctx.fillStyle = "#000000";
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(-5, -5);
@@ -95,7 +95,7 @@ createPlayer = function(g){
             ctx.lineTo(5 - xDeform, 5 - yDeform);
             ctx.lineTo(-5 - xDeform, 5 - yDeform);
             ctx.lineTo(-5, -5);
-            ctx.stroke();
+            ctx.fill();
         }
     };
 };
