@@ -3,52 +3,56 @@ createPlayer = function(g){
 		maxYDeform = 3;
 
 	function leftRightState() {
+		var airborn = this.state.name == "jumpState"
+				|| this.state.name == "fallingState";
+
+		var dx = airborn ? g.playerSpeed : 1;
+
 		if (g.input.isActive(g.input.LEFT)
 			&& g.input.isActive(g.input.RIGHT)) {
             this.vx = 0;
         } else if (g.input.isActive(g.input.LEFT)) {
-        	this.vx -= 1;
+        	this.vx -= dx;
         	if (this.vx < -g.playerSpeed) {
         		this.vx = -g.playerSpeed;
         	}
         } else if (g.input.isActive(g.input.RIGHT)) {
-        	this.vx += 1;
+        	this.vx += dx;
         	if (this.vx > g.playerSpeed) {
         		this.vx = g.playerSpeed;
         	}
-        } else {
+        } else if (!airborn) {
         	if (this.vx < 0) {
         		this.vx += g.playerFriction;
-        	} else if (this.vx >= 0) {
+        	} else if (this.vx > 0) {
         		this.vx -= g.playerFriction;
         	}
         	if (this.vx >= -1 || this.vx <= 1) {
         		this.vx = 0;
         	}
         }
-
-
     }
 
 	function restState() {
         leftRightState.apply(this);
-		if (g.input.isActive(g.input.UP)) {
+		if (g.input.isActiveOnce(g.input.UP)) {
             this.state = jumpState.bind(this)();
         }
 	}
 
 	function jumpState() {
 		this.vy = 60;
-		return function() {
+		var jumpStateImpl = function jumpStateImpl() {
         	leftRightState.apply(this);
 			this.vy -= g.gravity;
 	        if (this.vy <= 0) {
-	        	this.state = falling;
+	        	this.state = fallingState;
 	        }
-		}
+		};
+		return jumpStateImpl;
 	}
 
-	function falling() {
+	function fallingState() {
         leftRightState.apply(this);
 		this.vy -= g.gravity;
 		if (this.y <= 100) {

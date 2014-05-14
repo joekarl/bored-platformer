@@ -14,23 +14,37 @@ GAME = (function(){
     function initInput() {
         g.input = {
             _pressed: {},
-            
+
             UP: 38,
             LEFT: 37,
-            RIGHT: 39, 
+            RIGHT: 39,
             DOWN: 40,
             SPACE: 32,
+
+            update: function() {
+                var localPressed = this._pressed;
+                Object.keys(localPressed).forEach(function(keyCode){
+                    if (localPressed[keyCode] == 1) {
+                        localPressed[keyCode] = 2;
+                    }
+                });
+            },
 
             isActive: function(code) {
                 return this._pressed[code];
             },
 
+            isActiveOnce: function(code) {
+                var pressedState = this._pressed[code];
+                return pressedState == 1;
+            },
+
             onKeydown: function(e) {
-                this._pressed[e.keyCode] = true;
+                this._pressed[e.keyCode] = this._pressed[e.keyCode] ? 2 : 1;
             },
 
             onKeyup: function(e) {
-                delete this._pressed[e.keyCode];
+                this._pressed[e.keyCode] = 0;
             }
         };
 
@@ -55,14 +69,15 @@ GAME = (function(){
                 numberOfObjects--;
             }
         }
+        g.input.update();
     }
 
     function render(dt, ctx){
         clearScreen(ctx);
         g.gameObjects.forEach(function renderObj(obj){
             ctx.save();
-            //ctx.translate(obj.x - dt * (obj.vx || 0), -obj.y - dt * (obj.vy || 0) + g.height); 
-            ctx.translate(obj.x, g.height - obj.y); 
+            ctx.translate(obj.x + dt * (obj.vx || 0), -obj.y - dt * (obj.vy || 0) + g.height);
+            //ctx.translate(obj.x, g.height - obj.y);
             ctx.scale((obj.sx || 1), (obj.sy || 1)); //flip axis
             ctx.rotate(obj.angle || 0);
             obj.render(dt, ctx);
@@ -81,11 +96,11 @@ GAME = (function(){
     }
 
     function startMainLoop(ctx, fpsStats) {
-        var loops = 0, 
+        var loops = 0,
             skipTicks = 1000 / g.ups,
             maxFrameSkip = 10,
             nextGameTick = new Date().getTime();
-      
+
         var _loop = function() {
             fpsStats.begin();
             loops = 0;
@@ -103,7 +118,7 @@ GAME = (function(){
             var interpolation = (nextGameTick - currentTime) / skipTicks;
             interpolation = interpolation > 1 ? 1 : interpolation;
             interpolation = interpolation < 0 ? 0 : interpolation;
-            render(interpolation, ctx);
+            render(1 - interpolation, ctx);
             fpsStats.end();
             window.requestAnimationFrame(_loop);
         };
@@ -123,8 +138,8 @@ GAME = (function(){
                 container.appendChild(fpsStats.domElement);
             }
 
-            startMainLoop(ctx, fpsStats);
             initInput();
+            startMainLoop(ctx, fpsStats);
             startGame();
         }
     };
