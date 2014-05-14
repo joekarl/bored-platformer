@@ -22,25 +22,48 @@ GAME = (function(){
             SPACE: 32,
 
             update: function() {
-                var localPressed = this._pressed;
-                Object.keys(localPressed).forEach(function(keyCode){
-                    if (localPressed[keyCode] == 1) {
-                        localPressed[keyCode] = 2;
+                Object.keys(this._pressed).forEach(function(keyCode){
+                    if (this._pressed[keyCode] == 2) {
+                        this._pressed[keyCode] = 3;
                     }
-                });
+                }.bind(this));
             },
 
             isActive: function(code) {
-                return this._pressed[code];
+                return this._pressed[code] > 0;
             },
 
             isActiveOnce: function(code) {
                 var pressedState = this._pressed[code];
-                return pressedState == 1;
+                switch(pressedState) {
+                case 0:
+                    return false;
+                case 1:
+                case 2:
+                    this._pressed[code] = 2;
+                    return true;
+                case 3:
+                    return false;
+                default:
+                    this._pressed[code] = 0;
+                    return false;
+                }
             },
 
             onKeydown: function(e) {
-                this._pressed[e.keyCode] = this._pressed[e.keyCode] ? 2 : 1;
+                var pressedState = this._pressed[e.keyCode];
+                switch(pressedState) {
+                case 0:
+                case 1:
+                    this._pressed[e.keyCode] = 1;
+                    break;
+                case 2:
+                case 3:
+                    this._pressed[e.keyCode] = 3;
+                    break;
+                default:
+                    this._pressed[e.keyCode] = 1;
+                }
             },
 
             onKeyup: function(e) {
@@ -58,6 +81,7 @@ GAME = (function(){
     }
 
     function update(t){
+        g.input.update();
         var gameObjects = g.gameObjects;
         gameObjects.forEach(function updateObj(obj){
             obj.update(t);
@@ -69,7 +93,6 @@ GAME = (function(){
                 numberOfObjects--;
             }
         }
-        g.input.update();
     }
 
     function render(dt, ctx){
